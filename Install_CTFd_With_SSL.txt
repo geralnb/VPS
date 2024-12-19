@@ -1,0 +1,36 @@
+sudo docker run -p 8000:8000 -it ctfd/ctfd
+
+Instal Reverse Proxy
+sudo apt update
+sudo apt install nginx -y
+
+Konfigurasi Virtual Host untuk Subdomain
+Buat file konfigurasi untuk subdomain:
+server {
+    listen 80;
+    server_name DOMAIN_ANDA.com;
+
+    location / {
+        proxy_pass http://127.0.0.1:8000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+
+Aktifkan konfigurasi subdomain dengan membuat symlink ke sites-enabled
+sudo ln -s /etc/nginx/sites-available/ctf.geralnb.com /etc/nginx/sites-enabled/
+
+Periksa konfigurasi NGINX:
+sudo nginx -t
+
+Jika hasilnya OK, restart NGINX:
+sudo systemctl restart nginx
+
+HTTPS dengan Let's Encrypt
+sudo apt install certbot python3-certbot-nginx -y
+
+Dapatkan sertifikat SSL untuk subdomain:
+sudo certbot --nginx -d DOMAIN_ANDA.com
+
